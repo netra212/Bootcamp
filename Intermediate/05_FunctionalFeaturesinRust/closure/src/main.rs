@@ -44,6 +44,13 @@ fn main() {
     // println!("{}", validate_credentials(&creds.username, &creds.password));
     // println!("{}", validator(&creds.username, &creds.password));
     println!("{}", creds.is_valid());
+
+    //
+    let greater_than = |x: &i32| *x > 10;
+    let less_than = |x: &i32| *x < 20;
+
+    let result = are_both_true(greater_than, less_than, &15);
+    println!("{result}");
 }
 
 fn validate_credentials(username: &str, password: &str) -> bool {
@@ -73,4 +80,17 @@ fn get_password_validator(min_len: usize, special_char: bool) -> Box<dyn Fn(&str
     } else {
         Box::new(move |_: &str, password: &str| !password.len() >= min_len)
     }
+}
+
+fn are_both_true<T, U, V>(f1: T, f2: U, item: &V) -> bool
+where
+    T: Fn(&V) -> bool,
+    U: Fn(&V) -> bool,
+{
+    f1(&item) && f2(item)
+}
+
+// function pointer - similar to closure but they don't capture value. and represented by `fn`.
+fn less_than(x: &i32) -> bool {
+    *x < 20
 }
