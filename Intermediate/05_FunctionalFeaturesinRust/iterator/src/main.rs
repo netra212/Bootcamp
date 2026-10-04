@@ -83,6 +83,15 @@ impl IntoIterator for Person {
     }
 }
 
+// **************
+// Combinators.
+// **************
+#[derive(Debug)]
+struct Student {
+    name: String,
+    gpa: f32,
+}
+
 fn main() {
     // let mut m = MyStruct {};
     // let item: Option<i32> = m.next();
@@ -118,5 +127,51 @@ fn main() {
 
     for (team, score) in &scores {
         println!("{team} Got: {score} points");
+    }
+
+    // *****************
+    // Combinators.
+    // *****************
+    let students = vec![
+        "Bogdan 3.1",
+        "Wallace 2.3",
+        "Lidiya 3.5",
+        "Kyle 3.9",
+        "Anatoliy 4.0",
+    ];
+
+    // iter() is an combinator which will return an iterator over the string in the student vector.
+    // map() method is a part of combinator. map method convert in an iterator an item from one type to another type.
+    let good_students: Vec<Student> = students
+        .iter()
+        .map(|s| {
+            let mut s = s.split(' ');
+            let name = s.next()?.to_owned();
+            let gpa = s.next()?.parse::<f32>().ok()?;
+
+            Some(Student { name, gpa })
+        })
+        .flatten()
+        .filter(|s| s.gpa >= 3.5)
+        .collect();
+
+    // combinator: are small pure function which performs a specific task that could be chain together to perform complex operation.
+    // -------------------------------------------------
+    let mut good_students = vec![];
+    for s in students {
+        let mut s = s.split(' ');
+        let name = s.next();
+        let gpa = s.next();
+
+        if let (Some(name), Some(gpa)) = (name, gpa) {
+            let name = name.to_owned();
+            let gpa = gpa.parse::<f32>(); // this `::<f32>()` is turbo fish syntax which is used when function defined generics, but unclear what concrete type should subtitute that generic type... () defined with generics type <f23> but don't know what to generics like f. Like what concrete type will be replace or subtitute f. 
+
+            if let Ok(gpa) = gpa {
+                if gpa > 3.5 {
+                    good_students.push(Student { name, gpa });
+                }
+            }
+        }
     }
 }
