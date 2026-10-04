@@ -49,3 +49,28 @@ fn main() {
 fn validate_credentials(username: &str, password: &str) -> bool {
     !username.is_empty() && !password.is_empty()
 }
+
+// function accepting an closure an argument.
+// f is type of generics T which is a closure by itself and which have two string references.
+fn get_default_creds<T>(f: T) -> Credentials<T>
+where
+    T: Fn(&str, &str) -> bool,
+{
+    Credentials {
+        username: "guest".to_owned(),
+        password: "password".to_owned(),
+        validator: f,
+    }
+}
+
+fn get_password_validator(min_len: usize, special_char: bool) -> Box<dyn Fn(&str, &str) -> bool> {
+    // using `move` keyword means we are forcing the closure to take the ownerships of min_len otherwise min_len gets dropped at the end of the function. Also, using impl syntax we will get the advantanges of static dispatch.
+    if special_char {
+        Box::new(move |_: &str, password: &str| {
+            !password.len() >= min_len
+                && password.contains(['!', '@', '#', '$', '%', '^', '&', '*'])
+        })
+    } else {
+        Box::new(move |_: &str, password: &str| !password.len() >= min_len)
+    }
+}
