@@ -1,0 +1,4 @@
+    Checking hello_world v0.1.0 (/Users/netrakc/Desktop/Bootcamp/Basics/01_GetUpRunningFAST/hello_world)
+error: could not compile `hello_world` (bin "hello_world") due to 3 previous errors; 22 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `hello_world` (bin "hello_world" test) due to 3 previous errors; 22 warnings emitted
