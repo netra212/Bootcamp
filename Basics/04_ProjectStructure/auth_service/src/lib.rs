@@ -1,7 +1,5 @@
 #![allow(dead_code, unused_variables)]
 
-use rand::Rng;
-
 mod auth_utils;
 mod database;
 
