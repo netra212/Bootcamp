@@ -1,7 +1,9 @@
 [package]
-name = "auth_service"
+name = "auth_service_netra_mac"
 version = "0.1.0"
 edition = "2024"
+description = "Example auth services"
+license = "MIT"
 
 [dependencies]
 rand = "0.10.3"
