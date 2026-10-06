@@ -1,4 +1,4 @@
-use auth_service::Credentials;
+use auth_service_netra_mac::Credentials;
 
 fn main() {
     let cred = Credentials {
@@ -6,5 +6,5 @@ fn main() {
         password: "password123".to_owned(),
     };
 
-    auth_service::authenticate(cred);
+    auth_service_netra_mac::authenticate(cred);
 }
