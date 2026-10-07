@@ -23,7 +23,7 @@ impl Database {
     }
 }
 
-#[tokio::main] // async code will be executed by tokio runtime. 
+#[tokio::main(flavor = "current_thread")] // async code will be executed by tokio runtime. 
 async fn main() {
     let handle = thread::spawn(|| {
         for i in 0..20 {
@@ -119,9 +119,26 @@ async fn main() {
         handles2.push(handle);
     }
 
-    for handle in handles2 {
-        handle.await.unwrap();
+    for _ in handles2 {
+        // handle.await.unwrap();
+        expensive_computation();
     }
+
+    // Implementation of cpu intensive computation code. 
+    let mut handles3 = vec![];
+
+    for i in 0..2 {
+        let handle = tokio::spawn(async move {
+            my_function(i).await;
+        });
+        handles3.push(handle);
+    }
+
+    handles3.push(tokio::spawn(async {
+        let _res = tokio::task::spawn_blocking(|| {
+            expensive_computation();
+        }).await;
+    }));
 
 }
 
@@ -129,7 +146,6 @@ async fn main() {
 // When different parts of program execute independently.
 // Time slicing: Execution of these parts is interleaved on a single core.
 // Parallel Execution: Execution of these parts happens at the same time using multiple cores.
-
 
 // 
 async fn my_function(i: i32) {
@@ -145,4 +161,11 @@ async fn read_from_database() -> String {
     "DB Reult".to_owned()
 }
 
-
+// cpu intensive code 
+fn expensive_computation() {
+    let mut i = 0;
+    for _ in 0..400_000_000 {
+        i = i + 1;
+    }
+    println!("Done with expensive computation! i = {i}");
+}
