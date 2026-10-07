@@ -1,8 +1,9 @@
-use std::rc::Rc;
+// use std::rc::Rc;
 use std::sync::Mutex;
 use std::sync::mpsc;
 use std::{thread, time::Duration};
 use std::sync::Arc;
+use tokio::time::sleep;
 
 #[derive(Debug)]
 struct Database {
@@ -104,9 +105,24 @@ async fn main() {
 
     // Implementation of async.
     //
-    let f = my_function();
-    println!("Let's Learn Rust");
-    f.await;
+    // let f = my_function();
+    // println!("Let's Learn Rust");
+    // f.await;
+
+    // tokio task
+    let mut handles2 = vec![];
+    
+    for i in 0..2 {
+        let handle = tokio::spawn(async move {
+            my_function(i).await;
+        });
+        handles2.push(handle);
+    }
+
+    for handle in handles2 {
+        handle.await.unwrap();
+    }
+
 }
 
 // Concurrency:-
@@ -116,15 +132,16 @@ async fn main() {
 
 
 // 
-async fn my_function() {
-    println!("I'm an async function!");
+async fn my_function(i: i32) {
+    println!("{i} an async function!");
     let s1 = read_from_database().await;
-    println!("First result: {s1}");
+    println!("{i} -> First result: {s1}");
     let s2 = read_from_database().await;
-    println!("Second result: {s2}");
+    println!("{i} -> Second result: {s2}");
 }
 
 async fn read_from_database() -> String {
+    sleep(Duration::from_millis(10)).await;
     "DB Reult".to_owned()
 }
 
