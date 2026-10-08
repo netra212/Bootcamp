@@ -1,0 +1,13 @@
+[package]
+name = "macros"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+pro-macro = true
+
+[dependencies]
+quote = "1.0"
+syn =  {version="3.0.6", features=["full"]}
+chrono = "0.4" 
+darling = "0.13"
