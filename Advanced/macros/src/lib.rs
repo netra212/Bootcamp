@@ -30,10 +30,10 @@ macro_rules! map {
 extern crate proc_macro;
 
 use chrono::Utc;
-use syn::{self, ItemFn, parse_macro_input, parse_quote};
+use syn::{self, FnArg, ItemFn, Pat, parse_macro_input, parse_quote};
 use chrono::prelude::*;
 use quote::{ToTokens, quote};
-use proc_macro::{TokenStream};
+use proc_macro::{Ident, TokenStream};
 use darling::{FromMeta};
 
 #[proc_macro]
@@ -103,15 +103,50 @@ pub fn log_call(args: TokenStream, input: TokenStream) -> TokenStream {
     impl_log_call(&attr_args, &mut input)
 }
 
+
 fn impl_log_call(attr_args: &MacroArgs, input: &mut ItemFn) -> TokenStream {
     let fn_name = &input.sig.ident;
 
-    input.block.stmts.insert(0, parse_quote! {
-        println!("[Info] calling {}", stringify!(#fn_name));
-    });
+    if attr_args.verbose {
+        let fn_args = extract_arg_names(input);
+        let statements = generate_verbose_log(fn_name, fn_args);
+
+        input.block.stmts.splice(0..0, statements);
+    } else {
+        input.block.stmts.insert(0, parse_quote! {
+            println!("[Info] calling {}", stringify!(#fn_name));
+        });
+    }
 
     input.to_token_stream().into()
 }
 
+fn generate_verbose_log(fn_name: &Ident, fn_args: Vec<&Ident>) -> Vec<Stmt> {
+    let mut statements = vec![parse_quote! {
+        print!("[Info] calling {} | ", stringify!(#fn_name));
+    }];
+
+    for arg in fn_args {
+        statements.push(
+            parse_quote! {
+                print!("{} = {:?} ", stringify!(#arg), #arg);
+            }
+        );
+    }
+
+    statements.push(parse_quote! { println!(); });
+
+    statements
+}
 
 
+fn extract_arg_names(func: &ItemFn) -> Vec<&Ident> {
+    func.sig.inputs.iter().filter_map(|arg| {
+        if let FnArg::Typed(pat_type) = arg {
+            if let Pat::Ident(pat) = &(*pat_type.pat) {
+                return Some(&pat.ident);
+            }
+        }
+        None
+    }).collect()
+}
